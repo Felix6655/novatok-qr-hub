@@ -197,7 +197,7 @@ export default function HomePage() {
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-lg text-muted-foreground mb-8">
             NovaTok never holds your funds. All payments go directly from customers to you 
-            via Stripe or blockchain wallets. We're just the routing layer.
+            via Stripe or blockchain wallets. We are just the routing layer.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="p-6 rounded-xl bg-card border border-border">
