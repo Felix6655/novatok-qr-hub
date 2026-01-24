@@ -548,6 +548,193 @@ class NovaTokAPITester:
             self.log(f"Auth Logout test failed: {str(e)}", "ERROR")
             return False
     
+    def test_plans_api(self) -> bool:
+        """Test GET /api/plans - Get plan comparison data"""
+        try:
+            self.log("Testing Plans API...")
+            
+            response = self.session.get(f"{API_BASE}/plans")
+            
+            if response.status_code != 200:
+                self.log(f"Plans API failed with status {response.status_code}", "ERROR")
+                return False
+                
+            data = response.json()
+            
+            if 'plans' not in data:
+                self.log("Missing 'plans' key in plans response", "ERROR")
+                return False
+                
+            plans = data['plans']
+            
+            # Should have 3 plans: free, pro, business
+            if len(plans) != 3:
+                self.log(f"Expected 3 plans, got {len(plans)}", "ERROR")
+                return False
+                
+            plan_ids = [plan['id'] for plan in plans]
+            expected_plans = ['free', 'pro', 'business']
+            
+            for expected_plan in expected_plans:
+                if expected_plan not in plan_ids:
+                    self.log(f"Missing plan '{expected_plan}' in response", "ERROR")
+                    return False
+                    
+            # Verify each plan has required fields
+            for plan in plans:
+                required_keys = ['id', 'name', 'price', 'features', 'limits']
+                for key in required_keys:
+                    if key not in plan:
+                        self.log(f"Missing key '{key}' in plan {plan.get('id', 'unknown')}", "ERROR")
+                        return False
+                        
+            self.log(f"Plans API response: {json.dumps(data, indent=2)}")
+            self.log("✅ Plans API working correctly")
+            return True
+            
+        except Exception as e:
+            self.log(f"Plans API test failed: {str(e)}", "ERROR")
+            return False
+    
+    def test_user_plan_api(self) -> bool:
+        """Test GET /api/user/plan - Get current user's plan"""
+        try:
+            self.log("Testing User Plan API...")
+            
+            if not self.demo_user:
+                self.log("No demo user available for user plan test", "ERROR")
+                return False
+                
+            response = self.session.get(f"{API_BASE}/user/plan")
+            
+            if response.status_code != 200:
+                self.log(f"User Plan API failed with status {response.status_code}: {response.text}", "ERROR")
+                return False
+                
+            data = response.json()
+            
+            if 'plan' not in data:
+                self.log("Missing 'plan' key in user plan response", "ERROR")
+                return False
+                
+            plan = data['plan']
+            required_keys = ['userId', 'plan', 'effectivePlan', 'limits', 'isActive']
+            
+            for key in required_keys:
+                if key not in plan:
+                    self.log(f"Missing key '{key}' in user plan response", "ERROR")
+                    return False
+                    
+            # New users should start with free plan
+            if plan['plan'] != 'free':
+                self.log(f"Expected new user to have 'free' plan, got '{plan['plan']}'", "ERROR")
+                return False
+                
+            if plan['effectivePlan'] != 'free':
+                self.log(f"Expected new user to have 'free' effective plan, got '{plan['effectivePlan']}'", "ERROR")
+                return False
+                
+            # Check limits for free plan
+            limits = plan['limits']
+            if limits.get('maxQrCodes') != 5:
+                self.log(f"Expected free plan to have maxQrCodes=5, got {limits.get('maxQrCodes')}", "ERROR")
+                return False
+                
+            if not plan['isActive']:
+                self.log("Expected free plan to be active", "ERROR")
+                return False
+                
+            self.log(f"User Plan API response: {json.dumps(data, indent=2)}")
+            self.log("✅ User Plan API working correctly")
+            return True
+            
+        except Exception as e:
+            self.log(f"User Plan API test failed: {str(e)}", "ERROR")
+            return False
+    
+    def test_plan_limits_enforcement(self) -> bool:
+        """Test plan limits enforcement - free plan should limit to 5 QR codes"""
+        try:
+            self.log("Testing Plan Limits Enforcement...")
+            
+            if not self.demo_user:
+                self.log("No demo user available for plan limits test", "ERROR")
+                return False
+                
+            # Clear existing QR codes for clean test
+            self.created_qr_codes = []
+            
+            # Create 5 QR codes (should all succeed)
+            success_count = 0
+            for i in range(5):
+                qr_data = {
+                    "name": f"Test QR {i+1}",
+                    "type": "fiat",
+                    "destination_config": {
+                        "amount": 10.00,
+                        "currency": "usd",
+                        "productName": f"Test Product {i+1}"
+                    }
+                }
+                
+                response = self.session.post(f"{API_BASE}/qr", json=qr_data)
+                
+                if response.status_code == 201:
+                    data = response.json()
+                    if 'qr' in data:
+                        self.created_qr_codes.append(data['qr'])
+                        success_count += 1
+                        self.log(f"✅ QR {i+1}/5 created successfully")
+                else:
+                    self.log(f"❌ QR {i+1}/5 creation failed: {response.status_code} - {response.text}", "ERROR")
+                    
+            if success_count != 5:
+                self.log(f"Expected to create 5 QR codes, only created {success_count}", "ERROR")
+                return False
+                
+            # Try to create 6th QR code (should FAIL with 403)
+            qr_data = {
+                "name": "Test QR 6 (should fail)",
+                "type": "fiat",
+                "destination_config": {
+                    "amount": 10.00,
+                    "currency": "usd",
+                    "productName": "Test Product 6"
+                }
+            }
+            
+            response = self.session.post(f"{API_BASE}/qr", json=qr_data)
+            
+            if response.status_code != 403:
+                self.log(f"Expected 403 for 6th QR creation, got {response.status_code}", "ERROR")
+                return False
+                
+            data = response.json()
+            
+            if 'error' not in data:
+                self.log("Missing 'error' key in limit exceeded response", "ERROR")
+                return False
+                
+            if 'limitReached' not in data or not data['limitReached']:
+                self.log("Missing or false 'limitReached' flag in response", "ERROR")
+                return False
+                
+            error_message = data['error']
+            expected_message_parts = ["maximum", "5", "QR codes", "free plan"]
+            
+            for part in expected_message_parts:
+                if part not in error_message.lower():
+                    self.log(f"Expected error message to contain '{part}', got: {error_message}", "ERROR")
+                    return False
+                    
+            self.log(f"✅ Plan limit properly enforced with error: {error_message}")
+            self.log("✅ Plan Limits Enforcement working correctly")
+            return True
+            
+        except Exception as e:
+            self.log(f"Plan Limits Enforcement test failed: {str(e)}", "ERROR")
+            return False
+    
     def test_stripe_checkout(self) -> bool:
         """Test POST /api/stripe/checkout (should fail gracefully without config)"""
         try:
