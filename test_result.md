@@ -200,11 +200,14 @@ backend:
     file: "app/api/[[...path]]/route.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "DELETE /api/qr/[id] removes QR code"
+      - working: true
+        agent: "testing"
+        comment: "✅ QR deletion works correctly - successfully removes QR codes from demo storage."
 
   - task: "Analytics - Track events"
     implemented: true
