@@ -25,6 +25,7 @@ function getPathSegments(request) {
 let demoQrCodes = [];
 let demoEvents = [];
 let demoSession = null;
+let demoUserPlans = new Map();
 
 // =============================================
 // HANDLERS
@@ -47,6 +48,35 @@ export async function GET(request) {
         web3: getWeb3Status(),
         demo: !isSupabaseConfigured
       }, { headers: corsHeaders });
+    }
+
+    // GET /api/plans - Get plan comparison data
+    if (segments[0] === 'plans' && !segments[1]) {
+      return NextResponse.json(getPlanComparison(), { headers: corsHeaders });
+    }
+
+    // GET /api/user/plan - Get current user's plan
+    if (segments[0] === 'user' && segments[1] === 'plan') {
+      if (isSupabaseConfigured && supabase) {
+        const authHeader = request.headers.get('authorization');
+        if (!authHeader) {
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+        }
+        const token = authHeader.replace('Bearer ', '');
+        const { data: { user } } = await supabase.auth.getUser(token);
+        if (!user) {
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+        }
+        
+        const plan = await getUserPlan(user.id);
+        return NextResponse.json({ plan }, { headers: corsHeaders });
+      }
+      // Demo mode
+      if (demoSession) {
+        const plan = await getUserPlan(demoSession.id);
+        return NextResponse.json({ plan, isDemo: true }, { headers: corsHeaders });
+      }
+      return NextResponse.json({ error: 'Not logged in' }, { status: 401, headers: corsHeaders });
     }
 
     // GET /api/auth/session - Get current session
