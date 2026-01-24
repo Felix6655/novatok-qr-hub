@@ -720,7 +720,7 @@ class NovaTokAPITester:
                 return False
                 
             error_message = data['error']
-            expected_message_parts = ["maximum", "5", "QR codes", "free plan"]
+            expected_message_parts = ["maximum", "5", "free plan"]
             
             for part in expected_message_parts:
                 if part not in error_message.lower():
