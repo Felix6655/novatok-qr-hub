@@ -144,11 +144,14 @@ backend:
     file: "app/api/[[...path]]/route.js, lib/user-plans.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Added GET /api/plans for plan comparison, GET /api/user/plan for current user plan. Plan limits enforced on QR creation."
+      - working: true
+        agent: "testing"
+        comment: "✅ Comprehensive User Plans/Subscription testing complete! GET /api/plans returns 3 plans (free/pro/business) with correct structure. GET /api/user/plan works correctly - new users get free plan with maxQrCodes=5. Plan creation on signup works automatically. Plan limits enforcement working perfectly - allows 5 QR codes then blocks 6th with proper 403 error and limitReached flag. All subscription features operational."
 
   - task: "QR CRUD - Create QR code"
     implemented: true
