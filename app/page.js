@@ -122,7 +122,7 @@ export default function HomePage() {
               </div>
               <CardTitle>Analytics & Tracking</CardTitle>
               <CardDescription>
-                See who's scanning your codes. Track conversions without invasive tracking.
+                See who is scanning your codes. Track conversions without invasive tracking.
               </CardDescription>
             </CardHeader>
             <CardContent>
