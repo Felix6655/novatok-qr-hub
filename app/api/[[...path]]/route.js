@@ -273,6 +273,15 @@ export async function POST(request) {
           return NextResponse.json({ error: error.message }, { status: 400, headers: corsHeaders });
         }
         
+        // Create user plan (in case trigger didn't fire or for safety)
+        if (data.user) {
+          try {
+            await createUserPlan(data.user.id, email);
+          } catch (planError) {
+            console.log('Plan creation handled by trigger or already exists');
+          }
+        }
+        
         return NextResponse.json({ 
           user: data.user, 
           session: data.session,
@@ -280,11 +289,16 @@ export async function POST(request) {
         }, { headers: corsHeaders });
       }
       // Demo mode - instant signup
+      const userId = uuidv4();
       demoSession = {
-        id: uuidv4(),
+        id: userId,
         email: email || 'demo@novatok.app',
         isDemo: true
       };
+      
+      // Create demo user plan
+      await createUserPlan(userId, email);
+      
       return NextResponse.json({ 
         user: demoSession, 
         session: { access_token: 'demo-token' },
