@@ -257,11 +257,14 @@ backend:
     file: "app/api/[[...path]]/route.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "GET /api/marketplace/[id] returns marketplace listing mock data"
+      - working: true
+        agent: "testing"
+        comment: "✅ Marketplace API works correctly - returns proper mock listing data with all required fields (id, nftId, name, description, image, price, currency, seller, contract, chainId)."
 
 frontend:
   - task: "Homepage - Landing page"
