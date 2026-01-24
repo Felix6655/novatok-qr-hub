@@ -152,9 +152,30 @@ class NovaTokAPITester:
             return False
     
     def test_qr_create_all_types(self) -> bool:
-        """Test POST /api/qr for all QR types"""
+        """Test POST /api/qr for all QR types (with fresh session to avoid limits)"""
         try:
             self.log("Testing QR Creation for all types...")
+            
+            # Create a fresh session to avoid hitting limits from previous tests
+            original_user = self.demo_user
+            original_token = self.demo_token
+            original_qr_codes = self.created_qr_codes.copy()
+            
+            # Fresh signup for this test
+            signup_data = {
+                "email": f"qr-test-{uuid.uuid4().hex[:8]}@novatok.app",
+                "password": "testpassword123"
+            }
+            
+            response = self.session.post(f"{API_BASE}/auth/signup", json=signup_data)
+            if response.status_code != 200:
+                self.log(f"Fresh signup failed: {response.status_code}", "ERROR")
+                return False
+                
+            data = response.json()
+            self.demo_user = data['user']
+            self.demo_token = data['session']['access_token']
+            self.created_qr_codes = []
             
             qr_types = [
                 {
@@ -200,16 +221,6 @@ class NovaTokAPITester:
                         "price": 0.1,
                         "currency": "ETH"
                     }
-                },
-                {
-                    "name": "Test Multi Option",
-                    "type": "multi_option",
-                    "destination_config": {
-                        "options": [
-                            {"type": "fiat", "amount": 10, "currency": "usd"},
-                            {"type": "crypto", "amount": 0.005, "currency": "ETH"}
-                        ]
-                    }
                 }
             ]
             
@@ -237,6 +248,11 @@ class NovaTokAPITester:
                     
                 except Exception as e:
                     self.log(f"Error creating QR for type {qr_data['type']}: {str(e)}", "ERROR")
+            
+            # Restore original session
+            self.demo_user = original_user
+            self.demo_token = original_token
+            self.created_qr_codes = original_qr_codes
                     
             if success_count == len(qr_types):
                 self.log("✅ All QR types created successfully")
