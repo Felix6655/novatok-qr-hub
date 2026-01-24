@@ -185,11 +185,14 @@ backend:
     file: "app/api/[[...path]]/route.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "PUT /api/qr/[id] updates QR code properties"
+      - working: true
+        agent: "testing"
+        comment: "✅ QR update functionality works correctly - successfully updates name, destination_config, and is_active status."
 
   - task: "QR CRUD - Delete QR code"
     implemented: true
