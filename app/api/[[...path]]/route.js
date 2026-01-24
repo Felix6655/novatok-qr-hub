@@ -421,10 +421,21 @@ export async function POST(request) {
         
         return NextResponse.json({ qr: data, qrUrl }, { status: 201, headers: corsHeaders });
       }
-      // Demo mode
+      // Demo mode - check plan limits
+      const userId = demoSession?.id || 'demo';
+      const currentQrCount = demoQrCodes.filter(q => q.user_id === userId).length;
+      const limitCheck = await checkPlanLimit(userId, 'create_qr', { currentQrCount });
+      if (!limitCheck.allowed) {
+        return NextResponse.json({ 
+          error: limitCheck.reason,
+          limitReached: true,
+          isDemo: true 
+        }, { status: 403, headers: corsHeaders });
+      }
+      
       const newQr = {
         id: uuidv4(),
-        user_id: demoSession?.id || 'demo',
+        user_id: userId,
         name,
         slug,
         type,
