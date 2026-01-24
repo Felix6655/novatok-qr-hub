@@ -389,6 +389,20 @@ export async function POST(request) {
           return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
         }
         
+        // Check plan limits
+        const { count: currentQrCount } = await supabase
+          .from('qr_codes')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        
+        const limitCheck = await checkPlanLimit(user.id, 'create_qr', { currentQrCount: currentQrCount || 0 });
+        if (!limitCheck.allowed) {
+          return NextResponse.json({ 
+            error: limitCheck.reason,
+            limitReached: true 
+          }, { status: 403, headers: corsHeaders });
+        }
+        
         const { data, error } = await supabase
           .from('qr_codes')
           .insert({
