@@ -159,7 +159,7 @@ export default function AboutPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Privacy-First</h3>
                   <p className="text-sm text-muted-foreground">
-                    Minimal data collection. No invasive tracking. We only store what's needed to run the service.
+                    Minimal data collection. No invasive tracking. We only store what is needed to run the service.
                   </p>
                 </div>
                 <div>
