@@ -155,11 +155,14 @@ backend:
     file: "app/api/[[...path]]/route.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "GET /api/qr returns list of QR codes"
+      - working: true
+        agent: "testing"
+        comment: "✅ QR listing works correctly - returns all created QR codes in proper format with demo mode flag."
 
   - task: "QR CRUD - Get QR by slug"
     implemented: true
