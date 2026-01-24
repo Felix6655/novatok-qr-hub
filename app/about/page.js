@@ -44,15 +44,15 @@ export default function AboutPage() {
                   <div className="space-y-4 text-muted-foreground">
                     <p>
                       Most QR generators are either too basic (static only) or too complicated 
-                      (enterprise dashboards with 50 features you'll never use).
+                      (enterprise dashboards with 50 features you will never use).
                     </p>
                     <p>
                       We wanted something in between: <strong className="text-foreground">dynamic QR codes 
                       that are easy to set up</strong>, support both traditional payments and crypto, 
-                      and don't lock you into a platform.
+                      and do not lock you into a platform.
                     </p>
                     <p>
-                      That's NovaTok. Create a QR, point it somewhere, change it later if you need to. 
+                      That is NovaTok. Create a QR, point it somewhere, change it later if you need to. 
                       No fees on your payments, no complex setup.
                     </p>
                   </div>
