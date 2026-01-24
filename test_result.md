@@ -125,11 +125,14 @@ backend:
     file: "app/api/[[...path]]/route.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "POST /api/auth/login and /api/auth/signup work in demo mode"
+      - working: true
+        agent: "testing"
+        comment: "✅ Tested signup, login, session check, and logout - all working correctly in demo mode. Creates demo users with UUIDs and proper session management."
 
   - task: "QR CRUD - Create QR code"
     implemented: true
