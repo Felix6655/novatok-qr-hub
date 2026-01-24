@@ -779,9 +779,12 @@ class NovaTokAPITester:
         
         tests = [
             ("Status API", self.test_status_api),
+            ("Plans API", self.test_plans_api),
             ("Auth Signup", self.test_auth_signup),
+            ("User Plan API", self.test_user_plan_api),
             ("Auth Login", self.test_auth_login),
             ("Auth Session", self.test_auth_session),
+            ("Plan Limits Enforcement", self.test_plan_limits_enforcement),
             ("QR Create All Types", self.test_qr_create_all_types),
             ("QR List", self.test_qr_list),
             ("QR Get by Slug", self.test_qr_get_by_slug),
