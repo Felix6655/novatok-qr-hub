@@ -105,6 +105,7 @@
 user_problem_statement: |
   Build NovaTok QR Hub - A dynamic QR code platform for payments (Stripe), crypto (ETH/USDC/SOL), 
   NOVA tokens, NFT minting, and NFT marketplace listings. Non-custodial design.
+  Added: Subscription plan support (Free/Pro/Business) with Supabase integration.
 
 backend:
   - task: "Status API - Configuration check"
@@ -133,6 +134,21 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ Tested signup, login, session check, and logout - all working correctly in demo mode. Creates demo users with UUIDs and proper session management."
+      - working: true
+        agent: "main"
+        comment: "Updated signup/login to create user_plans row with free tier automatically"
+
+  - task: "User Plans API - Subscription management"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js, lib/user-plans.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added GET /api/plans for plan comparison, GET /api/user/plan for current user plan. Plan limits enforced on QR creation."
 
   - task: "QR CRUD - Create QR code"
     implemented: true
@@ -148,6 +164,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ Tested all 6 QR types (fiat, crypto, nova, nft_mint, nft_listing, multi_option) - all create successfully with proper validation and slug generation."
+      - working: true
+        agent: "main"
+        comment: "Added plan limit checking - free plan limited to 5 QR codes"
 
   - task: "QR CRUD - List QR codes"
     implemented: true
