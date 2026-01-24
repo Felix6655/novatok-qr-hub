@@ -320,17 +320,31 @@ export async function POST(request) {
           return NextResponse.json({ error: error.message }, { status: 400, headers: corsHeaders });
         }
         
+        // Ensure user plan exists (migration safety)
+        if (data.user) {
+          try {
+            await createUserPlan(data.user.id, email);
+          } catch (planError) {
+            // Plan already exists, which is fine
+          }
+        }
+        
         return NextResponse.json({ 
           user: data.user, 
           session: data.session 
         }, { headers: corsHeaders });
       }
       // Demo mode - instant login
+      const userId = uuidv4();
       demoSession = {
-        id: uuidv4(),
+        id: userId,
         email: email || 'demo@novatok.app',
         isDemo: true
       };
+      
+      // Create demo user plan
+      await createUserPlan(userId, email);
+      
       return NextResponse.json({ 
         user: demoSession, 
         session: { access_token: 'demo-token' },
