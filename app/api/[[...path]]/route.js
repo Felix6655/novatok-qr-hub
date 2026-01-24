@@ -5,6 +5,7 @@ import { isStripeConfigured, getStripe, getStripeStatus } from '@/lib/stripe';
 import { getWeb3Status, NOVA_TOKEN_ADDRESS, NFT_CONTRACT_ADDRESS, CHAIN_ID } from '@/lib/web3-config';
 import { generateSlug, QR_TYPES, validateDestinationConfig, buildQRUrl } from '@/lib/qr-utils';
 import { getMongoDb, getMemoryStore, getDemoUser } from '@/lib/mongo-fallback';
+import { getUserPlan, createUserPlan, updateUserPlan, checkPlanLimit, getPlanComparison, PLANS, PLAN_LIMITS } from '@/lib/user-plans';
 
 // CORS headers
 const corsHeaders = {
