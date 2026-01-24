@@ -242,11 +242,14 @@ backend:
     file: "app/api/[[...path]]/route.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "GET /api/nft/[id] returns NFT mock data"
+      - working: true
+        agent: "testing"
+        comment: "✅ NFT API works correctly - returns proper mock NFT data with all required fields (id, name, description, image, contract, chainId)."
 
   - task: "Marketplace API - Get listing"
     implemented: true
