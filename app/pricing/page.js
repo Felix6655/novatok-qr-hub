@@ -190,13 +190,13 @@ export default function PricingPage() {
               <div>
                 <h3 className="font-semibold mb-2">Can I cancel anytime?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Yes. Cancel your subscription anytime. You'll keep access until the end of your billing period.
+                  Yes. Cancel your subscription anytime. You will keep access until the end of your billing period.
                 </p>
               </div>
               <div>
                 <h3 className="font-semibold mb-2">What happens when I hit my scan limit?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Your QR codes keep working. We'll notify you when you're close and suggest upgrading.
+                  Your QR codes keep working. We will notify you when you are close and suggest upgrading.
                 </p>
               </div>
               <div>
